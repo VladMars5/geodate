@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <!-- ArcGIS Mapping APIs and Location Services Guide
+  Learn more: https://developers.arcgis.com/documentation/mapping-apis-and-location-services/maps-scenes-and-layers/
+  -->
+<title>ArcGIS Developer Guide: Map (GeoJSON data)</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+<link rel="stylesheet" href="https://js.arcgis.com/4.18/esri/themes/light/main.css">
+<script src="https://js.arcgis.com/4.18/"></script>
+
+<script>
+  require([
+    "esri/config",
+    "esri/Map",
+    "esri/layers/VectorTileLayer",
+    "esri/views/MapView"
+
+  ], function (esriConfig,Map, VectorTileLayer, MapView) {
+
+    esriConfig.apiKey = "YOUR-API-KEY";
+
+    const vtlLayer = new VectorTileLayer({
+      url: "https://vectortileservices3.arcgis.com/GVgbJbqm8hXASVYi/arcgis/rest/services/Santa_Monica_Mountains_Parcels_Styled/VectorTileServer/resources/styles/root.json",
+      opacity: 0.75
+    });
+
+    const map = new Map({
+      basemap: "arcgis-light-gray",
+      layers: [vtlLayer]
+    });
+
+
+    const view = new MapView({
+      container: "viewDiv",
+      center: [-118.52664, 34.04509],
+      zoom: 13,
+      map: map,
+      constraints: {
+        snapToZoom: false
+      }
+    });
+  });
+</script>
+</head>
+
+<body>
+<div id="viewDiv"></div>
+</body>
+</html>

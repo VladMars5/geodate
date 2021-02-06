@@ -1,0 +1,1 @@
+web: gunicorn geodate.wsgi --log-file -

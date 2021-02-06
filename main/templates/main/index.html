@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Intro to SceneView - Create a 3D map</title>
+	<style>
+  html,
+  body{
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+  #viewDiv {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.17/"></script>
+	 <script>
+  require(["esri/config", "esri/Map", "esri/views/SceneView", "esri/layers/FeatureLayer" ], function( esriConfig, Map, SceneView, FeatureLayer) {
+
+    esriConfig.apiKey = "AAPK4e40907600b348d6846be75026bfc498mZtFIdbEcSbAAXzFb47xrygKTjp6bjVhcgZR6NyHPxK7M_1jCQ7vqYkL2Z1tplWy";
+
+     const map = new Map({
+     basemap: "topo-vector",
+     ground: "world-elevation"
+  });
+
+  var view = new SceneView({
+    container: "viewDiv", // Reference to the DOM node that will contain the view
+    map: map ,// References the map object created in step 3
+	scale: 50000000,
+    center: [-101.17, 21.78]
+  });
+
+   const popupTrailheads = {
+        "title": "INFO",
+        "content": "<b>IAGA:</b> {IAGA}<br><b>GEOLON:</b> {GEOLON}<br><b>GEOLAT:</b> {GEOLAT}<br><b>AACGMLON:</b> {AACGMLON}<br><b>AACGMLAT:</b> {AACGMLAT}<br><b>STATION-NAME:</b> {STATION_NAME}<br><b>OPERATOR-NUM:</b> {OPERATOR_NUM}<br><b>OPERATORS:</b> {OPERATORS}"
+      }
+
+   const trailheadsLayer = new FeatureLayer({
+        url:"https://services8.arcgis.com/TFtvH1luXCRdwXYu/arcgis/rest/services/20210203-12-01-supermag-stations/FeatureServer",
+        outFields: ["IAGA","GEOLON","GEOLAT","AACGMLON","AACGMLAT","STATION_NAME","OPERATOR_NUM","OPERATORS"],
+        popupTemplate: popupTrailheads
+      });
+
+    map.add(trailheadsLayer);
+
+ });
+</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+  </head>
+  <header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Navbar</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Dropdown
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Something else here</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+      </li>
+    </ul>
+    <form class="form-inline my-2 my-lg-0">
+      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+  </div>
+</nav>
+  </header>
+  <body>
+  <div id="viewDiv"></div>
+</body>
+</html>
