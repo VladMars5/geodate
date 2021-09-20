@@ -1,9 +1,11 @@
+{% load static%}
 <!DOCTYPE html>
+
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <title>Intro to SceneView - Create a 3D map</title>
+    <title>Геомагнитные графики</title>
 	<style>
   html,
   body{
@@ -15,28 +17,34 @@
   #viewDiv {
     padding: 0;
     margin: 0;
-    height: 100%;
+    height: 90%;
     width: 100%;
   }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-	<link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
-    <script src="https://js.arcgis.com/4.17/"></script>
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	  <link rel="stylesheet" href="https://js.arcgis.com/4.17/esri/themes/light/main.css" />
+	  <link rel="stylesheet" href="{% static 'main/css/style.css' %}" />
+	  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+	  <script src="https://js.arcgis.com/4.17/"></script>
 	 <script>
-  require(["esri/config", "esri/Map", "esri/views/SceneView", "esri/layers/FeatureLayer" ], function( esriConfig, Map, SceneView, FeatureLayer) {
+  require(["esri/config", "esri/Map", "esri/views/SceneView", "esri/layers/FeatureLayer", "esri/layers/GeoJSONLayer","esri/symbols/SimpleLineSymbol", "esri/renderers/SimpleRenderer","esri/renderers/ClassBreaksRenderer","esri/widgets/Legend",  "esri/widgets/Expand"], function( esriConfig, Map, SceneView, FeatureLayer, GeoJSONLayer,SimpleLineSymbol, SimpleRenderer, ClassBreaksRenderer, Legend, Expand) {
 
     esriConfig.apiKey = "AAPK4e40907600b348d6846be75026bfc498mZtFIdbEcSbAAXzFb47xrygKTjp6bjVhcgZR6NyHPxK7M_1jCQ7vqYkL2Z1tplWy";
 
      const map = new Map({
      basemap: "topo-vector",
-     ground: "world-elevation"
-  });
+     ground: "world-elevation",
+
+     });
 
   var view = new SceneView({
     container: "viewDiv", // Reference to the DOM node that will contain the view
     map: map ,// References the map object created in step 3
 	scale: 50000000,
-    center: [-101.17, 21.78]
+    center: [-101.17, 21.78],
+
+
+
   });
 
    const popupTrailheads = {
@@ -49,51 +57,138 @@
         outFields: ["IAGA","GEOLON","GEOLAT","AACGMLON","AACGMLAT","STATION_NAME","OPERATOR_NUM","OPERATORS"],
         popupTemplate: popupTrailheads
       });
+   map.add(trailheadsLayer);
 
-    map.add(trailheadsLayer);
+  function createSymbol(color){
+          return {
+            type: "simple-fill",
+            color,
+            style: "solid",
+            outline: {
+              width: 0.2,
+              color: [255, 255, 255, 0.2]
+            }
+          };
+        }
 
+   const renderer = new ClassBreaksRenderer({
+          field: "level-index",
+          legendOptions: {
+            title: "Cкорость изменения"
+          },
+          classBreakInfos: [
+            {
+              minValue: 1,
+              maxValue: 4,
+              symbol: new SimpleLineSymbol({
+              width: 2,
+              color: "#00ff00",
+              }),
+              label: "0-50(nT/min)"
+            },
+            {
+              minValue: 5,
+              maxValue: 9,
+              symbol: new SimpleLineSymbol({
+              width: 2,
+              color: "#9ACD32"
+              }),
+              label: "50-80(nT/min)"
+            },
+            {
+              minValue: 10,
+              maxValue: 13,
+              symbol: new SimpleLineSymbol({
+              width: 2,
+              color: "#ffff00",
+              }),
+              label: "80-150(nT/min)"
+            },
+            {
+              minValue: 14,
+              maxValue: 16,
+              symbol: new SimpleLineSymbol({
+              width: 2,
+              color: "#FF8C00"
+              }),
+              label: "150-200(nT/min)"
+            },
+            {
+              minValue: 17,
+              maxValue: 20,
+              symbol: new SimpleLineSymbol({
+              width: 2,
+              color: "#ff0000"
+              }),
+              label: ">200(nT/min)"
+            }
+            ]
+        });
+
+   const geojson = {{ geojson | safe }};
+
+
+   const blob = new Blob([JSON.stringify(geojson)], {
+    type: "application/geojson"
+     });
+   const url = URL.createObjectURL(blob);
+   const layer = new GeoJSONLayer({ url , renderer : renderer});
+
+   map.add(layer);
+
+          const legend = new Legend({
+          view: view
+        });
+
+        view.ui.add(new Expand({
+          view: view,
+          content: legend,
+          expanded: true
+        }), "top-right");
  });
 </script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-  </head>
-  <header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Link</a>
-      </li>
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Dropdown
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item" href="#">Action</a>
-          <a class="dropdown-item" href="#">Another action</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-      </li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-  </div>
-</nav>
-  </header>
+
+  </head>
   <body>
+	<header>
+		<a href="" class="menu-link menu-link-active">GeoDate</a>
+		<a href="/about" class="menu-link">О проекте</a>
+	</header>
+
+
+	<form style="display:flex; align-items: center;  justify-content: center; position:relative; margin-top: 1%; margin-bottom: 1%;"  method="POST" class="post-form" >
+          {% csrf_token %}
+		<div class="sub-menu-elem">
+			<label>Дата:</label>
+			<div class="input-group date" id="sdate" >
+				<input type="date" id="date" value="2015-03-17" name="date" format="yyyy-mm-dd"  class="form-control" style="width:12 em;" min="2015-03-17" max="2015-12-20">
+			</div>
+		</div>
+		<div class="sub-menu-elem">
+			<label>Время:</label>
+			<div class="input-group bootstrap-timepicker timepicker" style="width: fit-content;">
+				<input type="time" id="time" style="width:12 em; "  name="time"  placeholder="HH:MM" class="form-control"  >
+			</div>
+		</div>
+		<div class="sub-menu-elem">
+		<label>Параметр:</label><br>
+		<div class="btn-group bootstrap-select">
+	    <select class="selectpicker" id="type_d" style="width:auto; height: auto" name="parametr">
+			<option value="X">X</option>
+			<option value="Y" selected="">Y</option>
+		    <option value="Z" selected="">Z</option>
+		    <!--<option value="F" selected="">F</option>-->
+		</select></div>
+	    </div>
+		<div class="sub-menu-elem">
+			<button type="submit" class="btn btn-primary"  style="font-size: inherit;width: 8 em;" onclick="myFunction()">Построить</button>
+		</div>
+	</form>
+
+
+
+
   <div id="viewDiv"></div>
-</body>
+   </body>
 </html>
